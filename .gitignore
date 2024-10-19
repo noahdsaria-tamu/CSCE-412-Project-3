@@ -1,0 +1,5 @@
+# Ignore any objecet or executable files generated in build
+
+*.o
+*.exe
+*.out
