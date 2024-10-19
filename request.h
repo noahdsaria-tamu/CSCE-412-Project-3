@@ -8,6 +8,9 @@ public:
     // Constructor
     Request(const std::string& ipIn, const std::string& ipOut);
 
+    // Defining default constructor to generate random IP addresses
+    Request();
+
     // Getters for accessing private members
     std::string getIpIn() const;
     std::string getIpOut() const;
