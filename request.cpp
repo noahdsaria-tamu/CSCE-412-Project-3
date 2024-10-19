@@ -21,13 +21,29 @@ std::string generateRandomIp() {
     return ss.str();
 }
 
-// Constructor implementation
-Request::Request(const std::string& ipIn, const std::string& ipOut)
-    : ipIn(ipIn), ipOut(ipOut) {}
+// Helper function to generate a random time
+int generateRandomTime() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(1, 10000); // Example range for time
+    return dist(gen);
+}
 
-// Constructor implementation with random IP addresses
+// Helper function to generate a random job type
+char generateRandomJobType() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0, 1); // Range for two job types
+    return dist(gen) == 0 ? 'P' : 'S'; // Randomly choose between 'P' and 'S'
+}
+
+// Constructor implementation
+Request::Request(const std::string& ipIn, const std::string& ipOut, int time, char jobType)
+    : ipIn(ipIn), ipOut(ipOut), time(time), jobType(jobType) {}
+
+// Default constructor implementation with random parameters
 Request::Request()
-    : ipIn(generateRandomIp()), ipOut(generateRandomIp()) {}
+    : ipIn(generateRandomIp()), ipOut(generateRandomIp()), time(generateRandomTime()), jobType(generateRandomJobType()) {}
 
 // Getter implementations
 std::string Request::getIpIn() const {
@@ -36,4 +52,12 @@ std::string Request::getIpIn() const {
 
 std::string Request::getIpOut() const {
     return ipOut;
+}
+
+int Request::getTime() const {
+    return time;
+}
+
+char Request::getJobType() const {
+    return jobType;
 }
