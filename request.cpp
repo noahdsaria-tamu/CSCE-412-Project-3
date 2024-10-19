@@ -1,6 +1,7 @@
 #include "request.h"
 #include <random>
 #include <sstream>
+#include <iostream>
 
 // Helper function to generate a random IP address
 std::string generateRandomIp() {
@@ -60,4 +61,13 @@ int Request::getTime() const {
 
 char Request::getJobType() const {
     return jobType;
+}
+
+// Display request information
+
+void Request::displayRequest() const {
+    std::cout << "Request IP in: " << ipIn << std::endl;
+    std::cout << "Request IP out: " << ipOut << std::endl;
+    std::cout << "Request time: " << time << std::endl;
+    std::cout << "Request job type: " << jobType << std::endl;
 }
