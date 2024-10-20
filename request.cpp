@@ -4,6 +4,14 @@
 #include <iostream>
 
 // Helper function to generate a random IP address
+/**
+ * @brief Generates a random IPv4 address.
+ * 
+ * This function generates a random IPv4 address in the format X.X.X.X,
+ * where each X is a random integer between 0 and 255.
+ * 
+ * @return A string representing the randomly generated IPv4 address.
+ */
 std::string generateRandomIp() {
     std::random_device rd;  // Seed generator
     std::mt19937 gen(rd()); // Mersenne Twister engine

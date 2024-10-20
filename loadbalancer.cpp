@@ -3,6 +3,7 @@
 #include <cstdlib> // For rand()
 #include <climits> // For INT_MAX and INT_MIN
 #include <ctime>   // For time()
+#include <fstream>
 
 int CURRENT_CYCLE = 1;
 // Constructor: initialize servers and round-robin index
@@ -112,7 +113,10 @@ int LoadBalancer::getRequestsFinished() const {
     return requestsFinished;
 }
 
+
+
 void LoadBalancer::printLogEntries() {
+    std::ofstream logFile("output.txt", std::ios::app);
     std::vector<LogEntry> allLogEntries;
     for (const auto& server : servers) {
         const auto& serverLogEntries = server.getLogEntries();
@@ -126,7 +130,9 @@ void LoadBalancer::printLogEntries() {
     for (const auto& entry : allLogEntries) {
         if (entry.clockCycle <= runtime) {
             std::cout << entry.message << std::endl;
+            logFile << entry.message << std::endl;
             std::cout << "-------------------------------------------------------" << std::endl;
+            logFile << "-------------------------------------------------------" << std::endl;
             if(entry.message.find("finished processing request") != std::string::npos) {
                 requestsFinished++;
             }
@@ -139,18 +145,28 @@ void LoadBalancer::printLogEntries() {
             requestsRejected++;
         }
     }
+    logFile.close();
 }
 
 void LoadBalancer::printStartStatus(int timeDuration) {
-	std::cout << "-------------------------------------------------------" << std::endl;
-    std::cout << "Start LoadBalancer Status: " << std::endl;
-    std::cout << "Starting with full queue size: " << getRequestQueueSize() << std::endl;
-    std::cout << "Clock cycles: " << std::to_string(timeDuration) << std::endl;
-    std::cout << "Range for request time: " << getMinRequestTime() << "-" << getMaxRequestTime() << " clock cycles\n";
+    std::ofstream logFile("output.txt", std::ios::app);
     std::cout << "-------------------------------------------------------" << std::endl;
+    logFile << "-------------------------------------------------------" << std::endl;
+    std::cout << "Start LoadBalancer Status: " << std::endl;
+    logFile << "Start LoadBalancer Status: " << std::endl;
+    std::cout << "Starting with full queue size: " << getRequestQueueSize() << std::endl;
+    logFile << "Starting with full queue size: " << getRequestQueueSize() << std::endl;
+    std::cout << "Clock cycles: " << std::to_string(timeDuration) << std::endl;
+    logFile << "Clock cycles: " << std::to_string(timeDuration) << std::endl;
+    std::cout << "Range for request time: " << getMinRequestTime() << "-" << getMaxRequestTime() << " clock cycles\n";
+    logFile << "Range for request time: " << getMinRequestTime() << "-" << getMaxRequestTime() << " clock cycles\n";
+    std::cout << "-------------------------------------------------------" << std::endl;
+    logFile << "-------------------------------------------------------" << std::endl;
+    logFile.close();
 }
 
 void LoadBalancer::printEndStatus() {
+    std::ofstream logFile("output.txt", std::ios::app);
     int activeServers = 0;
     int inactiveServers = 0;
     for (const auto& server : servers) {
@@ -162,10 +178,18 @@ void LoadBalancer::printEndStatus() {
     }
 
     std::cout << "End LoadBalancer Status: " << std::endl;
+    logFile << "End LoadBalancer Status: " << std::endl;
     std::cout << "Remaining requests in the queue: " << getRequestQueueSize() << std::endl;
+    logFile << "Remaining requests in the queue: " << getRequestQueueSize() << std::endl;
     std::cout << "Active servers: " << activeServers << std::endl;
+    logFile << "Active servers: " << activeServers << std::endl;
     std::cout << "Inactive servers: " << inactiveServers << std::endl;
+    logFile << "Inactive servers: " << inactiveServers << std::endl;
     std::cout << "Requests processed: " << requestsFinished << std::endl;
+    logFile << "Requests processed: " << requestsFinished << std::endl;
     std::cout << "Requests rejected/discarded: " << requestsRejected << std::endl;
+    logFile << "Requests rejected/discarded: " << requestsRejected << std::endl;
     std::cout << "-------------------------------------------------------" << std::endl;
+    logFile << "-------------------------------------------------------" << std::endl;
+    logFile.close();
 }
