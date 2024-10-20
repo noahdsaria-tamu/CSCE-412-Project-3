@@ -9,13 +9,13 @@ public:
     WebServer(int id);
 
     // Method to process a request
-    void processRequest(const Request& request);
+    void processRequest(const Request& request, int currentCycle);
 
     // Check if the server is idle
     bool isIdle() const;
 
     // Method to simulate request processing
-    void simulateRequestTime(int time);
+    void simulateRequestTime(int time, int currentCycle);
 
     // Get server ID
     int getId() const;
