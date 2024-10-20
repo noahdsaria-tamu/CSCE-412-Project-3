@@ -6,18 +6,26 @@
 #include <fstream>
 
 int CURRENT_CYCLE = 1;
-// Constructor: initialize servers and round-robin index
+
+/**
+ * @brief Constructs a LoadBalancer object and initializes servers.
+ * @param numServers The number of web servers.
+ * @param runtime The total runtime of the simulation in clock cycles.
+ */
 LoadBalancer::LoadBalancer(int numServers, int runtime) 
     : runtime(runtime), nextServerIndex(0), requestsFinished(0), requestsRejected(0) {
     // Initialize the list of web servers
     for (int i = 0; i < numServers; ++i) {
         servers.emplace_back(WebServer(i + 1)); // Server IDs start from 1
-         std::cout << "WebServer " << (i + 1) << " created with LoadBalancer duration " << runtime << std::endl;
+        std::cout << "WebServer " << (i + 1) << " created with LoadBalancer duration " << runtime << std::endl;
     }
     requestTimes[0] = INT_MAX, requestTimes[1] = INT_MIN;
 }
 
-// Method to add a request to the queue
+/**
+ * @brief Adds a request to the queue and updates min/max task times.
+ * @param request The request to be added.
+ */
 void LoadBalancer::addRequest(const Request& request) {
     int taskTime = request.getTime();
     if (taskTime < requestTimes[0]) requestTimes[0] = taskTime;
@@ -25,9 +33,12 @@ void LoadBalancer::addRequest(const Request& request) {
     requestQueue.push(request);
 }
 
-// Method to balance the load by assigning requests to available servers
+/**
+ * @brief Balances the load by assigning requests to available servers.
+ * Simulates request assignment and processing using a round-robin approach.
+ */
 void LoadBalancer::balanceLoad() {
-    srand((unsigned) time(0));
+    srand((unsigned) time(0)); // Initialize random seed
     for (; CURRENT_CYCLE <= runtime; ++CURRENT_CYCLE) {
 
         // Find an available server
@@ -49,10 +60,12 @@ void LoadBalancer::balanceLoad() {
             availableServer->processRequest(nextRequest, CURRENT_CYCLE, runtime); // Assign request to the server
             requestQueue.pop();
         } 
+        // Log when no servers are available but requests are in queue
         else if (!availableServer && !requestQueue.empty()) {
             servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
                ": No available servers. Requests in queue: " + std::to_string(requestQueue.size()));
         }
+        // Log and generate random requests when needed
         else if (!requestQueue.empty()) {
             int random = rand();
 
@@ -87,7 +100,10 @@ void LoadBalancer::balanceLoad() {
     }
 }
 
-// Method to generate random requests dynamically
+/**
+ * @brief Generates a specified number of random requests and adds them to the queue.
+ * @param numRequests The number of random requests to generate.
+ */
 void LoadBalancer::generateRandomRequests(int numRequests) {
     for (int i = 0; i < numRequests; ++i) {
         
@@ -97,24 +113,41 @@ void LoadBalancer::generateRandomRequests(int numRequests) {
     }
 }
 
+/**
+ * @brief Gets the current size of the request queue.
+ * @return The number of requests in the queue.
+ */
 int LoadBalancer::getRequestQueueSize() const {
     return requestQueue.size();
 }
 
+/**
+ * @brief Gets the minimum processing time of any request in the queue.
+ * @return The minimum request processing time (in clock cycles).
+ */
 int LoadBalancer::getMinRequestTime() const {
     return requestTimes[0];
 }
 
+/**
+ * @brief Gets the maximum processing time of any request in the queue.
+ * @return The maximum request processing time (in clock cycles).
+ */
 int LoadBalancer::getMaxRequestTime() const {
     return requestTimes[1];
 }
 
+/**
+ * @brief Gets the total number of requests that have been processed.
+ * @return The number of finished requests.
+ */
 int LoadBalancer::getRequestsFinished() const {
     return requestsFinished;
 }
 
-
-
+/**
+ * @brief Prints the log entries of all servers to the console and to an output file.
+ */
 void LoadBalancer::printLogEntries() {
     std::ofstream logFile("output.txt", std::ios::app);
     std::vector<LogEntry> allLogEntries;
@@ -123,10 +156,12 @@ void LoadBalancer::printLogEntries() {
         allLogEntries.insert(allLogEntries.end(), serverLogEntries.begin(), serverLogEntries.end());
     }
 
+    // Sort log entries by clock cycle
     std::sort(allLogEntries.begin(), allLogEntries.end(), [](const LogEntry& a, const LogEntry& b) {
         return a.clockCycle < b.clockCycle;
     });
 
+    // Print each log entry
     for (const auto& entry : allLogEntries) {
         if (entry.clockCycle <= runtime) {
             std::cout << entry.message << std::endl;
@@ -148,6 +183,10 @@ void LoadBalancer::printLogEntries() {
     logFile.close();
 }
 
+/**
+ * @brief Prints the initial status of the LoadBalancer including queue size and request time range.
+ * @param timeDuration The total simulation duration in clock cycles.
+ */
 void LoadBalancer::printStartStatus(int timeDuration) {
     std::ofstream logFile("output.txt", std::ios::app);
     std::cout << "-------------------------------------------------------" << std::endl;
@@ -165,6 +204,9 @@ void LoadBalancer::printStartStatus(int timeDuration) {
     logFile.close();
 }
 
+/**
+ * @brief Prints the final status of the LoadBalancer including server statuses and queue size.
+ */
 void LoadBalancer::printEndStatus() {
     std::ofstream logFile("output.txt", std::ios::app);
     int activeServers = 0;
