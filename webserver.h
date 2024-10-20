@@ -2,27 +2,31 @@
 #define WEBSERVER_H
 
 #include "request.h"
+#include <string>
+#include <vector>
+
+struct LogEntry {
+    int clockCycle;
+    std::string message;
+};
 
 class WebServer {
 public:
     // Constructor
     WebServer(int id);
 
-    // Method to process a request
     void processRequest(const Request& request, int currentCycle);
-
-    // Check if the server is idle
     bool isIdle() const;
-
-    // Method to simulate request processing
     void simulateRequestTime(int time, int currentCycle);
-
-    // Get server ID
     int getId() const;
+
+    void logMessage(int clockCycle, const std::string& message);
+    const std::vector<LogEntry>& getLogEntries() const;
 
 private:
     int serverId;      // Unique ID for the server
     bool idle;         // Server status (true if idle, false if processing)
+    std::vector<LogEntry> log; // Log of server activities
 };
 
 #endif // WEBSERVER_H

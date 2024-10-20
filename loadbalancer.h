@@ -21,6 +21,7 @@ public:
     int getMinRequestTime() const;
     int getMaxRequestTime() const;
     int getRequestsFinished() const;
+    void printLogEntries();
 
 private:
     std::queue<Request> requestQueue;     // Queue to hold the incoming requests

@@ -28,6 +28,7 @@ int main() {
 
 
     loadBalancer.balanceLoad();
+    loadBalancer.printLogEntries();
 
     
     cout << "-------------------------------------------------------" << endl;

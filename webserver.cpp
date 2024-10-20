@@ -11,12 +11,10 @@ void WebServer::processRequest(const Request& request, int currentCycle) {
     idle = false;
 
     // Display the request being processed
-    
-    std::cout << "Clock cycle " <<  currentCycle 
-              << ": WebServer " << serverId << " is processing request from "
-              << request.getIpIn() << " to " << request.getIpOut()
-              << ", Job Type: " << (request.getJobType() == 'P' ? "Processing" : "Streaming")
-              << std::endl;
+    logMessage(currentCycle, "Clock cycle " + std::to_string(currentCycle) +
+               ": WebServer " + std::to_string(serverId) + " is processing request from " +
+               request.getIpIn() + " to " + request.getIpOut() +
+               ", Job Type: " + (request.getJobType() == 'P' ? "Processing" : "Streaming"));
 
     // Simulate the request processing based on the request's time
     simulateRequestTime(request.getTime(), currentCycle);
@@ -38,10 +36,19 @@ void WebServer::simulateRequestTime(int cycles, int currentCycle) {
     while (std::chrono::high_resolution_clock::now() < end) {
         // Busy-wait loop
     }
-    std::cout << "Clock cycle " <<  cycles + currentCycle << ": WebServer " << serverId << " finished processing request" << std::endl;
+    logMessage(cycles + currentCycle, "Clock cycle " + std::to_string(cycles + currentCycle) +
+               ": WebServer " + std::to_string(serverId) + " finished processing request");
 }
 
 // Get server ID
 int WebServer::getId() const {
     return serverId;
+}
+
+void WebServer::logMessage(int clockCycle, const std::string& message) {
+    log.push_back({clockCycle, message});
+}
+
+const std::vector<LogEntry>& WebServer::getLogEntries() const {
+    return log;
 }

@@ -49,32 +49,38 @@ void LoadBalancer::balanceLoad() {
             requestQueue.pop();
         } 
         else if (!availableServer && !requestQueue.empty()) {
-            std::cout << "Clock cycle " << CURRENT_CYCLE << ": No available servers. Requests in queue: " << requestQueue.size() << std::endl;
+            servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
+               ": No available servers. Requests in queue: " + std::to_string(requestQueue.size()));
         }
         else if (!requestQueue.empty()) {
             int random = rand();
 
             if(random % 2 == 0) {
-                std::cout << "Generating and adding a random request.\n";
+                servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
+                "Generating and adding a random request.");
                 Request newRequest;
                 addRequest(newRequest);
             }
             else {
-                std::cout << "No random request generated.\n";
+                servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
+                "No random request generated.");
             }
         }
         else if(requestQueue.empty()) {
-            std::cout << "Clock cycle " << CURRENT_CYCLE << ": No requests in queue. Servers are idle." << std::endl;
+            servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
+               ": No requests in queue. Servers are idle.");
             
             int random = rand();
 
             if(random % 2 == 0) {
-                std::cout << "Generating and adding a random request.\n";
+                servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
+                "Generating and adding a random request.");
                 Request newRequest;
                 addRequest(newRequest);
             }
             else {
-                std::cout << "No random request generated.\n";
+                servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
+                "No random request generated.");
             }
         }
     }
@@ -104,4 +110,20 @@ int LoadBalancer::getMaxRequestTime() const {
 
 int LoadBalancer::getRequestsFinished() const {
     return requestsFinished;
+}
+
+void LoadBalancer::printLogEntries() {
+    std::vector<LogEntry> allLogEntries;
+    for (const auto& server : servers) {
+        const auto& serverLogEntries = server.getLogEntries();
+        allLogEntries.insert(allLogEntries.end(), serverLogEntries.begin(), serverLogEntries.end());
+    }
+
+    std::sort(allLogEntries.begin(), allLogEntries.end(), [](const LogEntry& a, const LogEntry& b) {
+        return a.clockCycle < b.clockCycle;
+    });
+
+    for (const auto& entry : allLogEntries) {
+        std::cout << entry.message << std::endl;
+    }
 }
