@@ -15,9 +15,9 @@ public:
     // Constructor
     WebServer(int id);
 
-    void processRequest(const Request& request, int currentCycle);
+    void processRequest(const Request& request, int currentCycle, int duration);
     bool isIdle() const;
-    void simulateRequestTime(int time, int currentCycle);
+    void simulateRequestTime(const Request& request, int time, int currentCycle);
     int getId() const;
 
     void logMessage(int clockCycle, const std::string& message);

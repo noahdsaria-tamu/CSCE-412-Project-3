@@ -7,11 +7,13 @@
 int CURRENT_CYCLE = 1;
 // Constructor: initialize servers and round-robin index
 LoadBalancer::LoadBalancer(int numServers, int runtime) 
-    : runtime(runtime), nextServerIndex(0), requestsFinished(0) {
+    : runtime(runtime), nextServerIndex(0), requestsFinished(0), requestsRejected(0) {
     // Initialize the list of web servers
     for (int i = 0; i < numServers; ++i) {
         servers.emplace_back(WebServer(i + 1)); // Server IDs start from 1
+         std::cout << "WebServer " << (i + 1) << " created with LoadBalancer duration " << runtime << std::endl;
     }
+    requestTimes[0] = INT_MAX, requestTimes[1] = INT_MIN;
 }
 
 // Method to add a request to the queue
@@ -19,7 +21,6 @@ void LoadBalancer::addRequest(const Request& request) {
     int taskTime = request.getTime();
     if (taskTime < requestTimes[0]) requestTimes[0] = taskTime;
     if (taskTime > requestTimes[1]) requestTimes[1] = taskTime;
-    else requestTimes[0] = INT_MAX, requestTimes[1] = INT_MIN;
     requestQueue.push(request);
 }
 
@@ -44,8 +45,7 @@ void LoadBalancer::balanceLoad() {
         // If we found an idle server, assign the request
         if (availableServer && !requestQueue.empty()) {
             const Request& nextRequest = requestQueue.front();
-            availableServer->processRequest(nextRequest, CURRENT_CYCLE); // Assign request to the server
-            requestsFinished++;
+            availableServer->processRequest(nextRequest, CURRENT_CYCLE, runtime); // Assign request to the server
             requestQueue.pop();
         } 
         else if (!availableServer && !requestQueue.empty()) {
@@ -57,13 +57,13 @@ void LoadBalancer::balanceLoad() {
 
             if(random % 2 == 0) {
                 servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
-                "Generating and adding a random request.");
+                ": Generating and adding a random request.");
                 Request newRequest;
                 addRequest(newRequest);
             }
             else {
                 servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
-                "No random request generated.");
+                ": No random request generated.");
             }
         }
         else if(requestQueue.empty()) {
@@ -74,13 +74,13 @@ void LoadBalancer::balanceLoad() {
 
             if(random % 2 == 0) {
                 servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
-                "Generating and adding a random request.");
+                ": Generating and adding a random request.");
                 Request newRequest;
                 addRequest(newRequest);
             }
             else {
                 servers[0].logMessage(CURRENT_CYCLE, "Clock cycle " + std::to_string(CURRENT_CYCLE) +
-                "No random request generated.");
+                ": No random request generated.");
             }
         }
     }
@@ -124,6 +124,48 @@ void LoadBalancer::printLogEntries() {
     });
 
     for (const auto& entry : allLogEntries) {
-        std::cout << entry.message << std::endl;
+        if (entry.clockCycle <= runtime) {
+            std::cout << entry.message << std::endl;
+            std::cout << "-------------------------------------------------------" << std::endl;
+            if(entry.message.find("finished processing request") != std::string::npos) {
+                requestsFinished++;
+            }
+            else if(entry.message.find("cannot be processed within the time duration") != std::string::npos) {
+                requestsRejected++;
+            }
+        }
+        // Beyond the runtime, discard the requests
+        else {
+            requestsRejected++;
+        }
     }
+}
+
+void LoadBalancer::printStartStatus(int timeDuration) {
+	std::cout << "-------------------------------------------------------" << std::endl;
+    std::cout << "Start LoadBalancer Status: " << std::endl;
+    std::cout << "Starting with full queue size: " << getRequestQueueSize() << std::endl;
+    std::cout << "Clock cycles: " << std::to_string(timeDuration) << std::endl;
+    std::cout << "Range for request time: " << getMinRequestTime() << "-" << getMaxRequestTime() << " clock cycles\n";
+    std::cout << "-------------------------------------------------------" << std::endl;
+}
+
+void LoadBalancer::printEndStatus() {
+    int activeServers = 0;
+    int inactiveServers = 0;
+    for (const auto& server : servers) {
+        if (server.isIdle()) {
+            inactiveServers++;
+        } else {
+            activeServers++;
+        }
+    }
+
+    std::cout << "End LoadBalancer Status: " << std::endl;
+    std::cout << "Remaining requests in the queue: " << getRequestQueueSize() << std::endl;
+    std::cout << "Active servers: " << activeServers << std::endl;
+    std::cout << "Inactive servers: " << inactiveServers << std::endl;
+    std::cout << "Requests processed: " << requestsFinished << std::endl;
+    std::cout << "Requests rejected/discarded: " << requestsRejected << std::endl;
+    std::cout << "-------------------------------------------------------" << std::endl;
 }

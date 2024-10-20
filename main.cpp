@@ -17,25 +17,14 @@ int main() {
     cin >> timeDuration;
 
 	//start the load balancer
-	cout << "-------------------------------------------------------" << endl;
-    cout << "Start LoadBalancer Status: " << endl;
+
     LoadBalancer loadBalancer(numServers, timeDuration);
     loadBalancer.generateRandomRequests(numServers * 100);
-    cout << "Starting with full queue size: " << loadBalancer.getRequestQueueSize() << endl;
-	cout << "Clock cycles: " << to_string(timeDuration) << endl;
-    cout << "Range for request time: " << loadBalancer.getMinRequestTime() << "-" << loadBalancer.getMaxRequestTime() << " clock cycles\n";
-	cout << "-------------------------------------------------------" << endl;
 
-
+    loadBalancer.printStartStatus(timeDuration);
     loadBalancer.balanceLoad();
     loadBalancer.printLogEntries();
-
-    
-    cout << "-------------------------------------------------------" << endl;
-    cout << "End LoadBalancer Status: " << endl;
-    cout << "Requests in queue processsed: " << loadBalancer.getRequestsFinished() << endl;
-    cout << "Remaining requests in the queue: " << loadBalancer.getRequestQueueSize() << endl;
-	cout << "-------------------------------------------------------" << endl;
+    loadBalancer.printEndStatus();
 
     return 0;
 

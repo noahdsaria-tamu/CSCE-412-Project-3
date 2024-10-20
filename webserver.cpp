@@ -6,7 +6,15 @@
 WebServer::WebServer(int id) : serverId(id), idle(true) {}
 
 // Method to process a request
-void WebServer::processRequest(const Request& request, int currentCycle) {
+void WebServer::processRequest(const Request& request, int currentCycle, int duration) {
+    // Check if the request can be processed within the remaining duration
+    if (request.getTime() + currentCycle > duration) {
+        logMessage(currentCycle, "Clock cycle " + std::to_string(currentCycle) +
+                   ": Request from " + request.getIpIn() + " to " + request.getIpOut() +
+                   " cannot be processed within the time duration.");
+        return;
+    }
+
     // Mark the server as busy
     idle = false;
 
@@ -14,10 +22,10 @@ void WebServer::processRequest(const Request& request, int currentCycle) {
     logMessage(currentCycle, "Clock cycle " + std::to_string(currentCycle) +
                ": WebServer " + std::to_string(serverId) + " is processing request from " +
                request.getIpIn() + " to " + request.getIpOut() +
-               ", Job Type: " + (request.getJobType() == 'P' ? "Processing" : "Streaming"));
+               " | Job Type: " + (request.getJobType() == 'P' ? "Processing " : "Streaming | Task Time: ") + std::to_string(request.getTime()) + " cycles | ");
 
     // Simulate the request processing based on the request's time
-    simulateRequestTime(request.getTime(), currentCycle);
+    simulateRequestTime(request, request.getTime(), currentCycle); 
 
     // After processing, mark the server as idle again
     idle = true;
@@ -29,7 +37,7 @@ bool WebServer::isIdle() const {
 }
 
 // Simulate the time it takes to process a request based on clock cycles
-void WebServer::simulateRequestTime(int cycles, int currentCycle) {
+void WebServer::simulateRequestTime(const Request& request, int cycles, int currentCycle) {
     // Simulating the request processing time by busy-waiting for the given number of clock cycles
     auto start = std::chrono::high_resolution_clock::now();
     auto end = start + std::chrono::nanoseconds(cycles);
@@ -37,7 +45,7 @@ void WebServer::simulateRequestTime(int cycles, int currentCycle) {
         // Busy-wait loop
     }
     logMessage(cycles + currentCycle, "Clock cycle " + std::to_string(cycles + currentCycle) +
-               ": WebServer " + std::to_string(serverId) + " finished processing request");
+               ": WebServer " + std::to_string(serverId) + " finished processing request from " + request.getIpIn() + " to " + request.getIpOut());
 }
 
 // Get server ID

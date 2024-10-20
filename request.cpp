@@ -26,7 +26,7 @@ std::string generateRandomIp() {
 int generateRandomTime() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(1, 100); // Example range for time
+    std::uniform_int_distribution<> dist(1, 20); // Example range for time
     return dist(gen);
 }
 

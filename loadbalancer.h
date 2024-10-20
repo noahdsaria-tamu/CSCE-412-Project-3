@@ -22,6 +22,8 @@ public:
     int getMaxRequestTime() const;
     int getRequestsFinished() const;
     void printLogEntries();
+    void printStartStatus(int timeDuration);
+    void printEndStatus();
 
 private:
     std::queue<Request> requestQueue;     // Queue to hold the incoming requests
@@ -30,6 +32,7 @@ private:
     int nextServerIndex;                  // To track which server gets the next request (round-robin)
     int requestTimes[2];                  // Range for request times (min, max)
     int requestsFinished;
+    int requestsRejected;
 };
 
 #endif
