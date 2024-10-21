@@ -27,6 +27,16 @@ public:
     void addRequest(const Request& request);
 
     /**
+     * @brief Adds a new server to the load balancer.
+     */
+    void addServer();
+
+    /**
+     * @brief Removes the last server from the load balancer.
+     */
+    void removeServer();
+
+    /**
      * @brief Balances the load by distributing requests to the available servers.
      * Uses a round-robin approach to assign requests to servers.
      */

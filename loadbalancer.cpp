@@ -17,7 +17,7 @@ LoadBalancer::LoadBalancer(int numServers, int runtime)
     // Initialize the list of web servers
     for (int i = 0; i < numServers; ++i) {
         servers.emplace_back(WebServer(i + 1)); // Server IDs start from 1
-        std::cout << "WebServer " << (i + 1) << " created with LoadBalancer duration " << runtime << std::endl;
+        std::cout << "WebServer " << (i + 1) << " created." << std::endl;
     }
     requestTimes[0] = INT_MAX, requestTimes[1] = INT_MIN;
 }
@@ -34,12 +34,48 @@ void LoadBalancer::addRequest(const Request& request) {
 }
 
 /**
+ * @brief Adds a new server to the load balancer.
+ */
+void LoadBalancer::addServer() {
+    int newServerId = servers.size() + 1;
+    servers.emplace_back(WebServer(newServerId));\
+    servers[0].logMessage(CURRENT_CYCLE, "Added WebServer " + std::to_string(newServerId) + " | Total Number of Servers: " + std::to_string(servers.size()));
+}
+
+/**
+ * @brief Removes the last server from the load balancer.
+ */
+void LoadBalancer::removeServer() {
+    if (!servers.empty()) {
+        int serverId = servers.back().getId();
+        servers.pop_back();
+        servers[0].logMessage(CURRENT_CYCLE, "Removed WebServer " + std::to_string(serverId) + " | Total Number of Servers: " + std::to_string(servers.size()));
+    } else {
+        servers[0].logMessage(CURRENT_CYCLE, "No servers to remove.");
+    }
+}
+
+
+/**
  * @brief Balances the load by assigning requests to available servers.
  * Simulates request assignment and processing using a round-robin approach.
  */
 void LoadBalancer::balanceLoad() {
     srand((unsigned) time(0)); // Initialize random seed
     for (; CURRENT_CYCLE <= runtime; ++CURRENT_CYCLE) {
+
+        // Dynamically add or remove servers based on requestQueue size
+        if (requestQueue.size() > servers.size() * 40) {
+            if (servers.size() < servers.size() * 2) {
+                addServer();
+            }
+        } 
+        
+        else if(requestQueue.size() < servers.size() * 30) {
+            if (servers.size() > 1) {
+                removeServer();
+            }
+        }
 
         // Find an available server
         WebServer* availableServer = nullptr;
